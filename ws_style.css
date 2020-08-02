@@ -2,12 +2,6 @@ body {
 	background-color : lightblue;
 }
 
-h1 {
-	color : black;
-	text-align: center;
-
-}
-
 p {
 	text-align: center;
 }
@@ -15,3 +9,41 @@ div {
 	text-align: center;
 }
 
+.next {
+	color : white;
+}
+
+.previous {
+	color : white;
+}
+.page_header {
+	color : white;
+	background-color : teal;
+	padding-top : 5px;
+	padding-bottom : 20px;
+	text-align: center;
+	font-weight: bold;
+	flex-wrap: wrap;
+}
+
+.page_footer {
+	color : white;
+	background-color : teal;
+	padding-top : 5px;
+	padding-bottom : 5px;
+	font-weight: normal;
+	flex-wrap: wrap;
+	font-size: 12px;
+}
+
+.labels {
+	fill: tomato;
+	font-weight: bold;
+}
+
+#legend text {
+	font-size: 0.9em;
+	color: #666;
+	font-weight: normal;
+}
+	
