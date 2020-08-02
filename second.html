@@ -5,33 +5,31 @@
 <head>
 <link rel="stylesheet" type="text/css" href="ws_style.css">
 <title> United States COVID-19 trends </title>
-<script src="https://d3js.org/d3.v5.min.js""></script>
-<!-- Topojson for geographical maps -->
-<script src="https://d3js.org/topojson.v1.min.js"></script>
-<script src="https://d3js.org/queue.v1.min.js"></script>
+
 <script src="scripts.js"></script>
 </head>
 
 <body>
 <div class = "page_header">
 <h1 id = "heading"> Tracking COVID-19 in United States </h1>
-<a class="next" href="second.html" style="float:right">Next: States &raquo; </a>
+<a class="previous" href="index.html" style="float:left">&laquo; Prev: Overview </a>
+<a class="next" href="third.html" style="float:right">Next: States &raquo; </a>
 </div>
-<!-- https://www.latlong.net/category/states-236-14.html -->
-<p justify=left>
-First case of COVID-19 was found in the state of Washington on 23rd Jan, 2020.
-</p>
-<p>
 
-<div id="overview"></div>
-<svg>
-</svg>
+<svg width="960" height="500"></svg>
+<!-- D3 for graphs -->
+<script src="https://d3js.org/d3.v5.min.js""></script>
+<!-- Topojson for geographical maps -->
+<script src="https://d3js.org/topojson.v1.min.js"></script>
+
+<!-- Map data are from https://github.com/topojson/us-atlas -->
 <script type="text/javascript">
-draw_page("index");
+	draw_page("second");
 </script>
-</p>
-</body>
 
+
+
+</body>
 
 <footer>
 <div class = "page_footer">
