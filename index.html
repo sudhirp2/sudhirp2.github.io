@@ -3,42 +3,47 @@
 <meta charset="UTF-8">
 
 <head>
-<link rel="stylesheet" type="text/css" href="ws_style.css">
-<title> United States COVID-19 trends </title>
-<script src="https://d3js.org/d3.v5.min.js""></script>
-<!-- Topojson for geographical maps -->
-<script src="https://d3js.org/topojson.v1.min.js"></script>
-<script src="https://d3js.org/queue.v1.min.js"></script>
-<script src="scripts.js"></script>
+	<link rel="stylesheet" type="text/css" href="ws_style.css">
+	<title> United States COVID-19 trends </title>
+	
+	<script src="https://d3js.org/d3.v5.min.js""></script>
+	<!-- Topojson for geographical maps -->
+	<script src="https://d3js.org/topojson.v1.min.js"></script>
+	<script src="https://d3js.org/queue.v1.min.js"></script>
+	<script src="https://unpkg.com/d3-svg-legend@1.13.0/d3-legend.min.js"></script>
+	<script src="scripts.js"></script>
 </head>
 
 <body>
-<div class = "page_header">
-<h1 id = "heading"> Tracking COVID-19 in United States </h1>
-<a class="next" href="second.html" style="float:right">Next: States &raquo; </a>
-</div>
-<!-- https://www.latlong.net/category/states-236-14.html -->
-<p justify=left>
-First case of COVID-19 was found in the state of Washington on 23rd Jan, 2020.
-</p>
-<p>
+	<div class = "page_header">
+		<h1 id = "heading"> Tracking COVID-19 in United States </h1>
+		<a class="next" href="second.html" style="float:right">Next: States &raquo; </a>
+	</div>
+	
+	<div class="desc">
+		<p text-align=left>
+			COVID-19 a.k.a SARS-CoV-2 has impacted how people live and go about their daily lives for ever. World Health Organization(WHO) formally notified about rise cases of pneumonia in Wuhan City on 31, Dec 2019. In US, first case of COVID-19 was diagnosed and reported in the state of Washington on 23rd Jan, 2020. The spread of virus that causes COVID-19 is primaryly airborne according to the scientific community. Since then State Governments in US have taken
+			varying measures to stop the spread pandemic. State governments have imposed stay-at-home directives at times and have relaxed it as well. Texas, Florida, Arizona, Illinois and California have seen a rise in COVID-19 cases. This interative slideshow provides an overview of the confirmed COVID-19 cases and deaths due to COVID-19 since the time it was first reported.
+		</p>
+	</div>
+	<div id="annotate"></div>
+	<div id="overview">
 
-<div id="overview"></div>
-<svg>
-</svg>
-<script type="text/javascript">
-draw_page("index");
-</script>
-</p>
+		<svg id="maparea" width="1024" height="800">
+			<div class="tooltip" id="tooltip" opacity="0"></div>
+		</svg>
+		<script type="text/javascript">
+			draw_page("index");
+		</script>
+	</div>
 </body>
 
-
 <footer>
-<div class = "page_footer">
-<b>Data Source : </b> <a href="https://data.world/associatedpress/johns-hopkins-coronavirus-case-tracker" style="color:white">Johns Hopkins COVID-19 Case Tracker</a>
-<br>
-<b>Visualization Author : </b> Sudhir Ponnachana
-</div>
+	<div class = "page_footer">
+		<b>Data Source : </b> <a href="https://data.world/associatedpress/johns-hopkins-coronavirus-case-tracker" style="color:white">Johns Hopkins COVID-19 Case Tracker</a>
+		<br>
+		<b>Visualization Author : </b> Sudhir Ponnachana
+	</div>
 </footer>
 
 </html>
