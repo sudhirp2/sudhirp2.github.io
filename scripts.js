@@ -16,19 +16,21 @@ function draw_page(val) {
 				[
 					d3.json("gz_2010_us_040_00_500k.json"),
 					d3.csv("1_county_level_confirmed_cases.csv"),
-					d3.csv("3_cases_and_deaths_by_state_timeseries.csv"),
-					d3.csv("2_cases_and_deaths_by_county_timeseries_00.csv"),
-					d3.csv("2_cases_and_deaths_by_county_timeseries_01.csv"),
-					d3.csv("2_cases_and_deaths_by_county_timeseries_02.csv"),
 					d3.csv("us_state_abbreviations.csv"),
+					//d3.csv("3_cases_and_deaths_by_state_timeseries.csv"),
+					//d3.csv("2_cases_and_deaths_by_county_timeseries_00.csv"),
+					//d3.csv("2_cases_and_deaths_by_county_timeseries_01.csv"),
+					//d3.csv("2_cases_and_deaths_by_county_timeseries_02.csv"),
+
 				]
 			).then(showUsMap);
 		//console.log("showUsMap");
 		function showUsMap(dataSet) {
 			let us = dataSet[0];
 			let us_cases = dataSet[1];
-			let us_deaths = dataSet[2];
-			let us_abbr = dataSet[6];
+			let us_abbr = dataSet[2];
+			//let us_deaths = dataSet[2];
+
 			
 			function lookup_abbr(val) {
 				for (var i = 0; i < us_abbr.length; i++) {
@@ -140,8 +142,6 @@ function draw_page(val) {
                 .attr("font-family","verdana")
                 .attr("font-size",10)
 				.attr("font-style", "italic")
-				.style("text-decoration-line", "underline")
-                .style("text-decoration-style", "wavy")
 				.style("font-weight", "bold")
 				.style("fill", "red")
                 .text("Move the mouse over the map for details.")
@@ -187,8 +187,7 @@ function draw_page(val) {
 					.attr("y",680)
 					.attr("font-family","verdana")
 					.attr("font-size", 9)
-					.attr("font-style", "normal")
-					.style("text-decoration-line", "underline")
+					.attr("font-style", "italic")
 					.style("font-weight", "bold")
 					.style("fill", "red")
 					.text("Map color gradiation by confirmed cases")
@@ -212,27 +211,26 @@ function draw_page(val) {
 
 		let dd_selection  = 0;
 		let dd_state = "";
+
+		var tooltip = d3.select("#charttooltip");
 		Promise.all(
 				[
-					d3.json("gz_2010_us_040_00_500k.json"),
-					d3.csv("1_county_level_confirmed_cases.csv"),
-					d3.csv("3_cases_and_deaths_by_state_timeseries.csv"),
-					d3.csv("2_cases_and_deaths_by_county_timeseries_00.csv"),
-					d3.csv("2_cases_and_deaths_by_county_timeseries_01.csv"),
-					d3.csv("2_cases_and_deaths_by_county_timeseries_02.csv"),
 					d3.json("us_state_abbreviations.json"),
+					d3.csv("3_cases_and_deaths_by_state_timeseries.csv")
 				]
-			).then(plotChart);
+			).then(setupDropDownAndPlotDefault);
 
 		//console.log("showUsMap");
-		function plotChart(dataSet) {
+		function setupDropDownAndPlotDefault(dataSet) {
 				
-			let us_states = dataSet[6];
+			let us_states = dataSet[0];
 			
+			dd_state = us_states[dd_selection].State;
 			console.log(us_states);
+
 			// create the drop down menu of states
-			let selector = d3.select("#slide2_dd")
-							  .append(svg)
+			let selector = d3.select("#dropdown")
+							 .append("g")
 							 .append("select")
 							 .attr("id", "stateopt")
 							 .selectAll("option")
@@ -242,16 +240,193 @@ function draw_page(val) {
 							 .attr("value", function (d, i) {
 								return i;
 							  });
-
+			console.log("247");
 			// start with index 0
 			d3.select("#stateopt").property("selectedIndex", dd_selection);
 
 			d3.select("#stateopt")
-			.on("change", function(d, i) { 
-				dd_selection = i;
-				console.log(d, i);
+			.on("change", function(d) {
+				dd_selection = +this.value;
+				dd_state = us_states[dd_selection].State;
+				console.log("Use selected state" , dd_selection, us_states[dd_selection].State);
+				plotChart(dataSet, dd_state, dd_selection);
 			})
-		}	
+			
+			console.log("Default selection" , dd_selection, dd_state);
+			plotChart(dataSet, dd_state, dd_selection);
+		}
+		
+		function getStdDate(ds) {
+			var mm = ds.getMonth() + 1;
+			var dd = ds .getDate();
+			var yy = ds .getFullYear();
+			return mm + "/" + dd + "/" + yy;
+		}
+		function showChartToolTip(d, s, coords) {
+						console.log(d, s, coords);
+			d3.select("#charttooltip")
+				.style("top", coords[1]+"px")
+				.style("left", coords[0]+"px")
+				.style("display", "block")
+				.html("<b>" + "<br/>" + "<font color=blue>" + s + "<br/>" + "Confirmed Cases: " + d.cases + "<br/>" + "Deaths: " + "<font color=red>" + d.deaths + "</font>" + "<br/>" + "Date: " + getStdDate(d.date)  + "</b>");
+		}
+		function plotChart(dataSet, state, index) {
+				let us_states = dataSet[0];
+				let case_deaths = dataSet[1];
+
+				let parseDate = d3.timeFormat("%m/%e/%Y").parse;
+				let	bisectDate = d3.bisector(function(d) { return d.date; }).left;
+				let formatValue = d3.format(",");
+				let dateFormatter = d3.timeFormat("%m/%d/%y");
+		
+				// Clear the svg before we redraw
+				d3.selectAll("svg > *").remove();
+				var svg = d3.select("#chartarea")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);				
+				console.log(case_deaths);
+				let info = new Array();
+				var i = 0;
+				for (let c of case_deaths) {
+					if (c.state == state) {
+						let state_val = new Object();
+						state_val["date"] = new Date(c.date);
+						state_val["cases"] = +c.cumulative_cases;
+						state_val["deaths"] = +c.cumulative_deaths;
+						info.push(state_val);
+					}
+					i += 1; 
+				}
+				console.log(info);
+
+				let maxValue = d3.max(info,  d => d.cases);
+				let y_margin = 80;
+				let yScale = d3.scaleLinear()
+								.range([h-200, 180])
+								.domain([0,maxValue]);
+
+				svg.append("g")
+					.call(d3.axisLeft(yScale))
+					.attr("transform", "translate(80, 0)")
+					
+				let xScale = d3.scaleTime()
+								.domain(d3.extent(info, d => d.date))
+								.range([80, w-280]);
+				svg.append("g")
+					.call(d3.axisBottom(xScale)
+						  .tickFormat(d3.timeFormat("%b")))
+					.attr("transform", "translate(0, 600)")
+					
+				valueline = d3.line()
+							.x(d => xScale(d.date))
+							.y(d => yScale(d.cases));
+				deathline = d3.line()
+							.x(d => xScale(d.date))
+							.y(d => yScale(d.deaths));
+							
+				svg.append("path")
+					.datum(info)
+					.attr("fill", "none")
+					.attr("stroke", "blue")
+					.attr("d", valueline)
+					.attr("transform", "translate(0, 0)")
+					.on("mousemove", function(d) {
+						let x0 = xScale.invert(d3.mouse(this)[0]);
+						let i = bisectDate(d, x0, 1),
+						d0 = d[i - 1];
+						d1 = d[i];
+						v = x0 - d0.date > d1.date - x0 ? d1 : d0;
+						showChartToolTip(v, state, [d3.event.clientX, d3.event.clientY]);	
+					})
+					.on("mouseover", function(d) {
+						let x0 = xScale.invert(d3.mouse(this)[0]);
+						let i = bisectDate(d, x0, 1),
+						d0 = d[i - 1];
+						d1 = d[i];
+						v = x0 - d0.date > d1.date - x0 ? d1 : d0;
+						showChartToolTip(v, state, [d3.event.clientX, d3.event.clientY]);	
+					})
+					.on("click", function(d) {
+						let x0 = xScale.invert(d3.mouse(this)[0]);
+						let i = bisectDate(d, x0, 1),
+						d0 = d[i - 1];
+						d1 = d[i];
+						v = x0 - d0.date > d1.date - x0 ? d1 : d0;
+						showChartToolTip(v, state, [d3.event.clientX, d3.event.clientY]);	
+					})
+					.on("mouseout", function (d) {
+						d3.select("#charttooltip").style("display", "none");
+					});
+					
+				
+				svg.append("path")
+					.datum(info)
+					.attr("fill", "none")
+					.attr("stroke", "red")
+					.attr("d", deathline)
+					.attr("transform", "translate(0, 0)")
+					.on("mousemove", function(d) {
+						let x0 = xScale.invert(d3.mouse(this)[0]);
+						let i = bisectDate(d, x0, 1),
+						d0 = d[i - 1];
+						d1 = d[i];
+						v = x0 - d0.date > d1.date - x0 ? d1 : d0;
+						showChartToolTip(v, state, [d3.event.clientX, d3.event.clientY]);	
+					})
+					.on("mouseover", function(d) {
+						let x0 = xScale.invert(d3.mouse(this)[0]);
+						let i = bisectDate(d, x0, 1),
+						d0 = d[i - 1];
+						d1 = d[i];
+						v = x0 - d0.date > d1.date - x0 ? d1 : d0;
+						showChartToolTip(v, state, [d3.event.clientX, d3.event.clientY]);	
+					})
+					.on("click", function(d) {
+						let x0 = xScale.invert(d3.mouse(this)[0]);
+						let i = bisectDate(d, x0, 1),
+						d0 = d[i - 1];
+						d1 = d[i];
+						v = x0 - d0.date > d1.date - x0 ? d1 : d0;
+						showChartToolTip(v, state, [d3.event.clientX, d3.event.clientY]);	
+					})
+					.on("mouseout", function (d,i) {
+						d3.select("#charttooltip").style("display", "none");
+					});				
+
+				svg.append("text")
+					.attr("class", ".labels")
+					.attr("text-anchor", "end")
+					.attr("stroke", "black")
+					.attr("x", w/2-100)
+					.attr("y", 650)
+					.attr("font-size", 14)
+					.text("Timeline");
+					console.log(w/2);
+					
+				svg.append("text")
+					.attr("class", ".labels")
+					.attr("text-anchor", "start")
+					.attr("stroke", "black")
+					.attr("x", -480)		
+					.attr("y", 6)			
+					.attr("dy", ".75em")
+					.attr("transform", "rotate(-90)")
+					.attr("font-size", 14)
+					.text(state + " " + "Confirmed Cases / Deaths")
+					.append;
+					
+			svg.append("text")
+                .attr("x", w/2-50)
+                .attr("y", 680)
+                .attr("font-family","verdana")
+                .attr("font-size",12)
+				.attr("font-style", "italic")
+				.style("font-weight", "bold")
+				.style("fill", "red")
+                .text("Move the mouse over the line for details.")	
+		}
+		
 	} else if (val == "third") {
 	}
 }

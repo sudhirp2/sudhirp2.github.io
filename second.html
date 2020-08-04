@@ -20,14 +20,17 @@
 		<a class="next" href="third.html" style="float:right">Next: States &raquo; </a>
 	</div>
 
-	<div id="second_chart">
-		<h3 color:white >Select from dropdown to view State Trends</h3>
-		<div class="slide2_dd" id="slide2_dd"></div>
-		<svg class="chart" width="1024" height ="800"></svg>
+	<div id="mychart">
+		<div class="dropdown" id="dropdown" opacity="0">
+			<h3> Select the state from dropdown to see state trends </h3>
+		</div>
+		<div class="charttooltip" id="charttooltip"></div>
+		<svg id="chartarea" width="1024" height="800"></svg>
+
 		<script type="text/javascript">
 			draw_page("second");
 		</script>
-	</div>	
+	</div>
 </body>
 
 <footer>
