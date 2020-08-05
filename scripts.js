@@ -6,7 +6,7 @@ function draw_page(val) {
 	if (val == "index") {
 
 	
-		console.log("index");
+		//console.log("index");
 		var svg = d3.select("#maparea")
 					.append("svg")
 					.attr("width", w)
@@ -138,7 +138,7 @@ function draw_page(val) {
 					.attr("y", (d, i) => path.centroid(d)[1]-10);
 					
 			svg.append("text")
-                .attr("x",0)
+                .attr("x",30)
                 .attr("y",500)
                 .attr("font-family","verdana")
                 .attr("font-size",10)
@@ -148,7 +148,7 @@ function draw_page(val) {
                 .text("Move the mouse over the map for details.")
 					
 				// add the choropleth legend
-				let width = 100, height = 700;
+			let width = 100, height = 700;
 			  
 			var announce = d3.select("#maparea")
 							.append("svg")
@@ -207,7 +207,7 @@ function draw_page(val) {
 				
         };
 	
-		console.log("done");
+		//console.log("done");
 		
 	} else if (val == "second") {
 
@@ -228,7 +228,7 @@ function draw_page(val) {
 			let us_states = dataSet[0];
 			
 			dd_state = us_states[dd_selection].State;
-			console.log(us_states);
+			//console.log(us_states);
 
 			// create the drop down menu of states
 			let selector = d3.select("#dropdown")
@@ -242,7 +242,7 @@ function draw_page(val) {
 							 .attr("value", function (d, i) {
 								return i;
 							  });
-			console.log("247");
+			//console.log("247");
 			// start with index 0
 			d3.select("#stateopt").property("selectedIndex", dd_selection);
 
@@ -250,11 +250,11 @@ function draw_page(val) {
 			.on("change", function(d) {
 				dd_selection = +this.value;
 				dd_state = us_states[dd_selection].State;
-				console.log("Use selected state" , dd_selection, us_states[dd_selection].State);
+				//console.log("Use selected state" , dd_selection, us_states[dd_selection].State);
 				plotChart(dataSet, dd_state, dd_selection);
 			})
 			
-			console.log("Default selection" , dd_selection, dd_state);
+			//console.log("Default selection" , dd_selection, dd_state);
 			plotChart(dataSet, dd_state, dd_selection);
 		}
 		
@@ -265,7 +265,7 @@ function draw_page(val) {
 			return mm + "/" + dd + "/" + yy;
 		}
 		function showChartToolTip(d, s, coords) {
-						console.log(d, s, coords);
+			//console.log(d, s, coords);
 			d3.select("#charttooltip")
 				.style("top", coords[1]+"px")
 				.style("left", coords[0]+"px")
@@ -287,7 +287,7 @@ function draw_page(val) {
 						.append("svg")
 						.attr("width", w)
 						.attr("height", h);				
-				console.log(case_deaths);
+				//console.log(case_deaths);
 				let info = new Array();
 				var i = 0;
 				for (let c of case_deaths) {
@@ -300,7 +300,7 @@ function draw_page(val) {
 					}
 					i += 1; 
 				}
-				console.log(info);
+				//console.log(info);
 
 				let maxValue = d3.max(info,  d => d.cases);
 				let y_margin = 80;
@@ -404,7 +404,7 @@ function draw_page(val) {
 					.attr("y", 650)
 					.attr("font-size", 14)
 					.text("Timeline");
-					console.log(w/2);
+					//console.log(w/2);
 					
 				svg.append("text")
 					.attr("class", ".labels")
@@ -426,7 +426,7 @@ function draw_page(val) {
 				.attr("font-style", "italic")
 				.style("font-weight", "bold")
 				.style("fill", "red")
-                .text("Move the mouse over the line for details.")	
+                .text("Move the mouse across the line for details.")	
 		}
 		
 	} else if (val == "third") {
