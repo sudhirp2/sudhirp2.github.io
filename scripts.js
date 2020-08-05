@@ -114,7 +114,6 @@ function draw_page(val) {
 					this.style.opacity = 0.7;
 					//console.log("processMouseOver we go", d.properties.NAME, d.properties.confirmed, d.properties.deaths);
 					tooltip.transition().duration(200).style("opacity", 1);
-					tooltip.text("Sudhir");
 					tooltip.style("hidden", false)
 						   .style("left", (d3.event.pageX)+"px")
 						   .style("top",  (d3.event.pageY)+"px")
@@ -151,14 +150,14 @@ function draw_page(val) {
 				// add the choropleth legend
 				let width = 100, height = 700;
 			  
-				var announce = d3.select("#maparea")
-								.append("svg")
-								.attr("width", width)
-								.attr("height", height)
-								.attr("class", "legend")
-								.attr("transform", "translate(950, 0)");
+			var announce = d3.select("#maparea")
+							.append("svg")
+							.attr("width", width)
+							.attr("height", height)
+							.attr("class", "legend")
+							.attr("transform", "translate(950, 0)");
 			
-				var legend = announce.append("defs")
+			var legend = announce.append("defs")
 							.append("svg:linearGradient")
 							.attr("id", "gradient")
 							.attr("x1", "100%")
@@ -167,24 +166,24 @@ function draw_page(val) {
 							.attr("y2", "100%")
 							.attr("spreadMethod", "pad");
 			
-				legend.append("stop")
+			legend.append("stop")
 					  .attr("offset", "0%")
 					  .attr("stop-color", "red")
 					  .attr("stop-opacity", 1);
 			
-				legend.append("stop")
+			legend.append("stop")
 					.attr("offset", "100%")
 					.attr("stop-color", "white")
 					.attr("stop-opacity", 1);
 
-				announce.append("rect")
+			announce.append("rect")
 				   .attr("width", width/4)
 				   .attr("height", height)
 				   .style("fill", "url(#gradient)")
 			       .attr("transform", "translate(0,-50)");
-				   
 
-				svg.append("text")
+
+			svg.append("text")
 					.attr("x",800)
 					.attr("y",680)
 					.attr("font-family","verdana")
@@ -195,13 +194,13 @@ function draw_page(val) {
 					.text("Map color gradiation by confirmed cases")
 
 
-				var y = d3.scaleLinear()
-						  .range([height, 0])
-						  .domain([0, maxCases]);
+			var y = d3.scaleLinear()
+					  .range([height, 0])
+					  .domain([0, maxCases]);
 
-				var yAxis = d3.axisRight(y);
+			var yAxis = d3.axisRight(y);
 
-				announce.append("g")
+			announce.append("g")
 				   .attr("class", "y axis")
 				   .attr("transform", "translate(0,-50)")
 				   .call(yAxis)
@@ -560,7 +559,7 @@ function draw_page(val) {
 					.append("rect")
 					.attr("x", (d) => xScale(d.state))
 					.attr("y", (d) => yScale(d.cases))
-					.attr("width", xScale.bandwidth())
+					.attr("width", (xScale.bandwidth() * 4)/5)
 					.attr("fill", "yellow")
 					.attr("fill", d => d.cases ? colScale(d.cases) : "white")
 					.attr("height", (d) => h - 200 - yScale(d.cases))
