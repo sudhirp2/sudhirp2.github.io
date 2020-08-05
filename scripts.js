@@ -467,7 +467,6 @@ function draw_page(val) {
 				}	
 			}
 			function showBarGraphTooltip(d, coords) {
-				console.log(d, coords);
 				let s = lookup_name(d.state);
 				d3.select("#bgtooltip")
 					.style("top", coords[1]+"px")
@@ -500,50 +499,53 @@ function draw_page(val) {
 				state_val["deaths"] = state_deaths[c.State];
 				trends.push(state_val);
 			}
-	
-			trends.sort(function(a,b) {
-				d3.ascending(a.cases, b.cases);
-			});
-			
+
 			if (dbgOn) {
 				console.log(trends, trends);
 				console.log(state_cases);
 			}
-				// Clear the svg before we redraw
-				d3.selectAll("svg > *").remove();
-				var svg = d3.select("#bargrapharea")
-							.append("svg")
-							.attr("width", w)
-							.attr("height", h);
+			// Clear the svg before we redraw
+			d3.selectAll("svg > *").remove();
+			var svg = d3.select("#bargrapharea")
+						.append("svg")
+						.attr("width", w)
+						.attr("height", h);
 							
-				// ##
-				let chart = svg.append("g")
-							.attr("transform", "translate(0, "+0+")");
+			// ##
+			let chart = svg.append("g")
+						   .attr("transform", "translate(0, "+0+")");
 								
-				console.log(d3.max(trends, d => d.cases));
-				yScale = d3.scaleLinear()
-						.domain([0, d3.max(trends, d => d.cases)])
-						.range([h - 200, 180]);
-				svg.append("g")
-					 .call(d3.axisLeft(yScale))
-					 .attr("transform", "translate(80, 0)")
+			yScale = d3.scaleLinear()
+					   .domain([0, d3.max(trends, d => d.cases)])
+					   .range([h - 200, 180]);
+			svg.append("g")
+			   .call(d3.axisLeft(yScale))
+			   .attr("transform", "translate(80, 0)")
 					 
-				xScale = d3.scaleBand()
-						.domain(trends.map(d => d.state))
+			xScale = d3.scaleBand()
+			    		.domain(trends.map(d => d.state))
 						.range([80, w-280]);
-				svg.append("g")
-					.call(d3.axisBottom(xScale))
-					.attr("transform", "translate(2,600)")
-					.selectAll("text")
-					.attr("y", 0)
-					.attr("x", 9)
-					.attr("dy", ".30em")
-					.attr("transform", "rotate(90)")
-					.style("text-anchor", "start")
-					.attr("font-family","verdana")
-					.attr("font-size", 10)
-					.attr("fill", "black")
-					.style("font-weight", "italic");
+			// Sort the state by value
+			trends.sort(function(a, b) {
+				return d3.ascending(a.cases, b.cases)
+			})
+			xScale.domain(trends.map(function(d) {
+				return d.state;
+			}));
+			
+			svg.append("g")
+				.call(d3.axisBottom(xScale))
+				.attr("transform", "translate(2,600)")
+				.selectAll("text")
+				.attr("y", 0)
+				.attr("x", 9)
+				.attr("dy", ".30em")
+				.attr("transform", "rotate(90)")
+				.style("text-anchor", "start")
+				.attr("font-family","verdana")
+				.attr("font-size", 10)
+				.attr("fill", "black")
+				.style("font-weight", "italic");
 
 				let maxCases  = d3.max(trends, d => d.cases);
 				let median = d3.median(trends, d => d.cases);
