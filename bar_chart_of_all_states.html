@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en-US">
+<meta charset="UTF-8">
+
+<head>
+	<link rel="stylesheet" type="text/css" href="ws_style.css">
+	<title> United States COVID-19 trends </title>
+	<script src="scripts.js"></script>
+	<!-- D3 for graphs -->
+	<script src="https://d3js.org/d3.v5.min.js""></script>
+	<!-- Topojson for geographical maps -->
+	<script src="https://d3js.org/topojson.v1.min.js"></script>
+</head>
+
+<body>
+
+	<div class = "page_header">
+		<h1 id = "heading"> Tracking COVID-19 in United States </h1>
+		<a class="previous" href="index.html" style="float:left">&laquo; Prev: Overview </a>
+		<a class="next" href="per_state_trend.html" style="float:right">Next: States &raquo; </a>		
+	</div>
+
+	<div id="mybargraph">
+		<div class="bgtooltip" id="bgtooltip"></div>
+		<svg id="bargrapharea" width="1024" height="800"></svg>
+
+		<script type="text/javascript">
+			draw_page("third");
+		</script>
+	</div>
+</body>
+
+<footer>
+	<div class = "page_footer">
+		<b>Data Source : </b> <a href="https://data.world/associatedpress/johns-hopkins-coronavirus-case-tracker" style="color:white">Johns Hopkins COVID-19 Case Tracker</a>
+		<br>
+		<b>Visualization Author : </b> Sudhir Ponnachana
+	</div>
+</footer>
+
+</html>

@@ -4,6 +4,8 @@ function draw_page(val) {
 	var dbgOn = 0;
 
 	if (val == "index") {
+
+	
 		console.log("index");
 		var svg = d3.select("#maparea")
 					.append("svg")
@@ -207,6 +209,7 @@ function draw_page(val) {
         };
 	
 		console.log("done");
+		
 	} else if (val == "second") {
 
 		let dd_selection  = 0;
@@ -428,5 +431,180 @@ function draw_page(val) {
 		}
 		
 	} else if (val == "third") {
+		let dd_selection  = 0;
+		let dd_state = "";
+
+		var tooltip = d3.select("#bgtooltip");
+
+		Promise.all(
+				[
+					d3.json("us_state_abbreviations.json"),
+					d3.csv("1_county_level_confirmed_cases.csv"),
+				]
+			).then(plotBarGraph);
+		
+
+		function plotBarGraph(dataSet) {
+				let us_states = dataSet[0];
+				let us_cases = dataSet[1];
+				let margin = 80;
+			if (dbgOn) {
+				console.log(us_cases);
+				console.log(us_states);
+			}
+			function lookup_abbr(val) {
+				for (var i = 0; i < us_states.length; i++) {
+					if (us_states[i].State == val) {
+						return us_states[i].Code;
+					}
+				}	
+			}
+			function lookup_name(abbr) {
+				for (var i = 0; i < us_states.length; i++) {
+					if (us_states[i].Code == abbr) {
+						return us_states[i].State;
+					}	
+				}	
+			}
+			function showBarGraphTooltip(d, coords) {
+				console.log(d, coords);
+				let s = lookup_name(d.state);
+				d3.select("#bgtooltip")
+					.style("top", coords[1]+"px")
+					.style("left", coords[0]+"px")
+					.style("display", "block")
+					.html("<b>" + "<br/>" + "<font color=blue>" + s + "<br/>" + "Confirmed Cases: " + d.cases + "<br/>" + "Deaths: " + "<font color=red>" + d.deaths + "</font>" + "<br/>" + "</b>");
+			}
+
+			let state_cases = {};
+			let state_deaths = {};
+			for (let c of us_cases) {
+				var state = c.state;
+				var confirmed = parseInt(c.confirmed,10);
+				var temp = 0;
+				if (!isNaN(parseInt(state_cases[state], 10))) {
+					temp = parseInt(state_cases[state], 10) + confirmed;
+				}
+				state_cases[state] = temp;
+				var deaths = parseInt(c.deaths,10);
+				if (!isNaN(parseInt(state_deaths[state], 10))) {
+					temp = parseInt(state_deaths[state], 10) + deaths;
+				}
+				state_deaths[state] = temp;;
+			}
+			let trends = new Array()
+			for (let c of us_states) {
+				let state_val = new Object()
+				state_val["state"] = lookup_abbr(c.State);
+				state_val["cases"] = state_cases[c.State];
+				state_val["deaths"] = state_deaths[c.State];
+				trends.push(state_val);
+			}
+	
+			trends.sort(function(a,b) {
+				d3.ascending(a.cases, b.cases);
+			});
+			
+			if (dbgOn) {
+				console.log(trends, trends);
+				console.log(state_cases);
+			}
+				// Clear the svg before we redraw
+				d3.selectAll("svg > *").remove();
+				var svg = d3.select("#bargrapharea")
+							.append("svg")
+							.attr("width", w)
+							.attr("height", h);
+							
+				// ##
+				let chart = svg.append("g")
+							.attr("transform", "translate(0, "+0+")");
+								
+				console.log(d3.max(trends, d => d.cases));
+				yScale = d3.scaleLinear()
+						.domain([0, d3.max(trends, d => d.cases)])
+						.range([h - 200, 180]);
+				svg.append("g")
+					 .call(d3.axisLeft(yScale))
+					 .attr("transform", "translate(80, 0)")
+					 
+				xScale = d3.scaleBand()
+						.domain(trends.map(d => d.state))
+						.range([80, w-280]);
+				svg.append("g")
+					.call(d3.axisBottom(xScale))
+					.attr("transform", "translate(2,600)")
+					.selectAll("text")
+					.attr("y", 0)
+					.attr("x", 9)
+					.attr("dy", ".30em")
+					.attr("transform", "rotate(90)")
+					.style("text-anchor", "start")
+					.attr("font-family","verdana")
+					.attr("font-size", 10)
+					.attr("fill", "black")
+					.style("font-weight", "italic");
+
+				let maxCases  = d3.max(trends, d => d.cases);
+				let median = d3.median(trends, d => d.cases);
+				let colScale = d3.scaleLinear()
+							 .domain([0, median, maxCases])
+							 .range(["white", "orange", "red"]);
+
+				chart.selectAll()
+					.attr("class", "bars")				
+					.data(trends)
+					.enter()
+					.append("rect")
+					.attr("x", (d) => xScale(d.state))
+					.attr("y", (d) => yScale(d.cases))
+					.attr("width", xScale.bandwidth())
+					.attr("fill", "yellow")
+					.attr("fill", d => d.cases ? colScale(d.cases) : "white")
+					.attr("height", (d) => h - 200 - yScale(d.cases))
+					.attr("transform", "translate(2, 0)")
+					.on("mousemove", function(d) {
+						showBarGraphTooltip(d, [d3.event.clientX, d3.event.clientY]);
+					})
+					.on("mouseover", function(d) {
+						showBarGraphTooltip(d, [d3.event.clientX, d3.event.clientY]);
+					})
+					.on("mouseout", function(d) {
+						d3.select("#bgtooltip").style("display", "none");
+					})
+					  
+				svg.append("text")
+					.attr("class", ".labels")
+					.attr("text-anchor", "end")
+					.attr("stroke", "black")
+					.attr("x", w/2-100)
+					.attr("y", 650)
+					.attr("font-size", 14)
+					.text("States");
+					console.log(w/2);
+					
+				svg.append("text")
+					.attr("class", ".labels")
+					.attr("text-anchor", "start")
+					.attr("stroke", "black")
+					.attr("x", -480)		
+					.attr("y", 6)			
+					.attr("dy", ".75em")
+					.attr("transform", "rotate(-90)")
+					.attr("font-size", 14)
+					.text("Confirmed Cases")
+					.append;
+					
+				svg.append("text")
+					.attr("x", w/2-50)
+					.attr("y", 680)
+					.attr("font-family","verdana")
+					.attr("font-size",12)
+					.attr("font-style", "italic")
+					.style("font-weight", "bold")
+					.style("fill", "red")
+					.text("Move the mouse over the bar graphs for details.")	
+		}
+		
 	}
 }
